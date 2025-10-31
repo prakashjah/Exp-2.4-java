@@ -1,0 +1,26 @@
+-- Schema for demo tables
+CREATE DATABASE IF NOT EXISTS testdb;
+USE testdb;
+
+-- For Part A: sample table
+CREATE TABLE IF NOT EXISTS demo_table (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  value VARCHAR(100)
+);
+
+-- For Part B: product table
+CREATE TABLE IF NOT EXISTS product (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  quantity INT NOT NULL
+);
+
+-- For Part C: student table
+CREATE TABLE IF NOT EXISTS student (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150),
+  course VARCHAR(100)
+);
