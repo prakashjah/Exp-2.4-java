@@ -1,0 +1,25 @@
+package parta;
+
+import java.sql.*;
+
+public class ConnectAndFetch {
+    // Replace placeholders with your DB values
+    private static final String DB_URL = "DB_URL"; // e.g. jdbc:mysql://localhost:3306/testdb
+    private static final String DB_USER = "DB_USER";
+    private static final String DB_PASS = "DB_PASS";
+
+    public static void main(String[] args) {
+        String query = "SELECT id, name, value FROM demo_table";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+
+            System.out.println("id \t name \t value");
+            while (rs.next()) {
+                System.out.printf("%d\t%s\t%s%n", rs.getInt("id"), rs.getString("name"), rs.getString("value"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
