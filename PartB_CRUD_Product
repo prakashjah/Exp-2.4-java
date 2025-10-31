@@ -1,0 +1,120 @@
+package partb;
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class ProductCRUD {
+    private static final String DB_URL = "DB_URL"; // e.g. jdbc:mysql://localhost:3306/testdb
+    private static final String DB_USER = "DB_USER";
+    private static final String DB_PASS = "DB_PASS";
+
+    private static Connection getConn() throws SQLException {
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+    }
+
+    private static void createProduct(Scanner sc) {
+        System.out.print("Name: ");
+        String name = sc.nextLine();
+        System.out.print("Price: ");
+        double price = Double.parseDouble(sc.nextLine());
+        System.out.print("Quantity: ");
+        int qty = Integer.parseInt(sc.nextLine());
+
+        String sql = "INSERT INTO product (name, price, quantity) VALUES (?, ?, ?)";
+        try (Connection conn = getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
+            ps.setString(1, name);
+            ps.setDouble(2, price);
+            ps.setInt(3, qty);
+            ps.executeUpdate();
+            conn.commit();
+            System.out.println("Product created.");
+        } catch (SQLException e) {
+            System.err.println("Create failed: " + e.getMessage());
+        }
+    }
+
+    private static void readProducts() {
+        String sql = "SELECT id, name, price, quantity FROM product";
+        try (Connection conn = getConn();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            System.out.println("id\tname\tprice\tquantity");
+            while (rs.next()) {
+                System.out.printf("%d\t%s\t%.2f\t%d%n",
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getDouble("price"),
+                    rs.getInt("quantity"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Read failed: " + e.getMessage());
+        }
+    }
+
+    private static void updateProduct(Scanner sc) {
+        System.out.print("Enter product id to update: ");
+        int id = Integer.parseInt(sc.nextLine());
+        System.out.print("New name: ");
+        String name = sc.nextLine();
+        System.out.print("New price: ");
+        double price = Double.parseDouble(sc.nextLine());
+        System.out.print("New quantity: ");
+        int qty = Integer.parseInt(sc.nextLine());
+
+        String sql = "UPDATE product SET name=?, price=?, quantity=? WHERE id=?";
+        try (Connection conn = getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
+            ps.setString(1, name);
+            ps.setDouble(2, price);
+            ps.setInt(3, qty);
+            ps.setInt(4, id);
+            int updated = ps.executeUpdate();
+            conn.commit();
+            System.out.println(updated > 0 ? "Updated." : "No product found with id " + id);
+        } catch (SQLException e) {
+            System.err.println("Update failed: " + e.getMessage());
+        }
+    }
+
+    private static void deleteProduct(Scanner sc) {
+        System.out.print("Enter product id to delete: ");
+        int id = Integer.parseInt(sc.nextLine());
+        String sql = "DELETE FROM product WHERE id=?";
+        try (Connection conn = getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
+            ps.setInt(1, id);
+            int deleted = ps.executeUpdate();
+            conn.commit();
+            System.out.println(deleted > 0 ? "Deleted." : "No product found with id " + id);
+        } catch (SQLException e) {
+            System.err.println("Delete failed: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("""\
+1. Create product
+2. Read products
+3. Update product
+4. Delete product
+5. Exit
+""");
+            System.out.print("Choose: ");
+            String choice = sc.nextLine();
+            switch (choice) {
+                case "1": createProduct(sc); break;
+                case "2": readProducts(); break;
+                case "3": updateProduct(sc); break;
+                case "4": deleteProduct(sc); break;
+                case "5": System.out.println("Bye"); sc.close(); return;
+                default: System.out.println("Invalid");
+            }
+        }
+    }
+}
